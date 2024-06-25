@@ -19,6 +19,16 @@
         </li>
       </ul>
     </div>
+    <div class="album-app">
+      <h1>Albums</h1>
+      <button @click="fetchAlbums" class="button-74">Load Albums</button>
+      <div v-if="loadingAlbums" class="loading">Memuat...</div>
+      <ul v-else>
+        <li v-for="album in albums" :key="album.id">
+          {{ album.title }}
+        </li>
+      </ul>
+    </div>
   </div>
 </template>
 
@@ -28,6 +38,8 @@ import { ref, computed } from 'vue';
 const newTask = ref('');
 const tasks = ref([]);
 const hideCompleted = ref(false);
+const albums = ref([]);
+const loadingAlbums = ref(false);
 
 const filteredTodos = computed(() => {
   return hideCompleted.value
@@ -67,6 +79,20 @@ function loadData() {
   tasks.value = savedTasks ? JSON.parse(savedTasks) : [];
 }
 
+function fetchAlbums() {
+  loadingAlbums.value = true;
+  fetch('https://jsonplaceholder.typicode.com/albums')
+    .then(response => response.json())
+    .then(data => {
+      albums.value = data;
+      loadingAlbums.value = false;
+    })
+    .catch(error => {
+      console.error('Failed to fetch albums', error);
+      loadingAlbums.value = false;
+    });
+}
+
 loadData();
 </script>
 
@@ -79,15 +105,16 @@ loadData();
   margin: 10px auto;
 }
 
-.todo-app {
+.todo-app, .album-app {
   width: 100%;
   max-width: 600px;
   background: rgb(175, 153, 143);
   margin: 0 auto;
   padding: 20px;
+  margin-bottom: 20px;
 }
 
-.todo-app h1, .todo-app h2 {
+.todo-app h1, .todo-app h2, .album-app h1 {
   text-align: center;
   color: rgb(236, 213, 213);
   margin-bottom: 30px;
@@ -103,7 +130,7 @@ input {
   color: #000;
 }
 
-.row button {
+.row button, .button-74 {
   outline: none;
   padding: 10px;
   background: rgb(0, 0, 0);
@@ -112,7 +139,7 @@ input {
   cursor: pointer;
 }
 
-.row button:hover {
+.row button:hover, .button-74:hover {
   background: #333;
 }
 
@@ -165,5 +192,10 @@ ul li span:hover {
 
 .button-74:hover {
   background-color: #424242;
+}
+
+.loading {
+  text-align: center;
+  padding: 2rem;
 }
 </style>
